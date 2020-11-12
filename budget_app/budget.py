@@ -3,6 +3,7 @@ class Category:
         self.name = name
         self.ledger = []
         self.balance = 0
+        self.spent = 0
 
     def deposit(self, amount, description=""):
         self.balance += amount
@@ -24,6 +25,7 @@ class Category:
                 "amount": -1 * amount,
                 "description": description
             })
+            self.spent += amount
             return True
         else:
             return False
@@ -51,12 +53,30 @@ class Category:
         return message
 
 
-# def create_spend_chart(categories):
+def create_spend_chart(categories):
+    result = "Percentage spent by category\n"
 
+    # total spent amount for all categories.
+    total = sum(x.spent for x in categories)
+    # percentage for each category spent regarding previous total.
+    percentages = [(x.spent / total) // 0.01 for x in categories]
 
-food = Category("food")
-relax = Category("relax")
-food.deposit(500, "Initial deposit")
-food.transfer(200, relax)
-print(food.balance, relax.balance)
-print(food)
+    for x in range(100, -10, -10):
+        result += str(x).rjust(3, " ") + '|'
+        for y in percentages:
+            if y >= x:
+                result += ' o '
+            else:
+                result += '   '
+        result += ' \n'
+    result += '    ' + '-' * len(percentages) * 3 + '-\n'
+    max_length = max(len(x.name) for x in categories)
+    for x in range(max_length):
+        result += '    '
+        for y in categories:
+            if x < len(y.name):
+                result += ' ' + y.name[x] + ' '
+            else:
+                result += '   '
+        result += ' \n'
+    return result.rstrip() + '  '
